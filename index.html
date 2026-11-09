@@ -84,7 +84,7 @@ a{color:var(--accent)}
     <div><h2>Proteção e caixa</h2>
       <div class="grp">
         <label for="iso">Isopor em volta (mm)</label><input id="iso" type="number" value="20" min="0" step="5">
-        <label for="gap">Isopor entre peças, caixa 3 (mm)</label><input id="gap" type="number" value="20" min="0" step="5">
+        <label for="gap">Isopor entre peças (mm)</label><input id="gap" type="number" value="20" min="0" step="5">
         <label for="mdf">Parede de MDF (mm)</label><input id="mdf" type="number" value="6" min="3" step="1">
         <label for="folga">Folga peça × isopor (mm)</label><input id="folga" type="number" value="0" min="0" step="1">
       </div></div>
@@ -137,11 +137,12 @@ a{color:var(--accent)}
   <div class="panel"><h2>Peças</h2><div class="tw"><table id="tPecas"></table></div></div>
   <div class="panel"><h2>Premissas e origem dos dados</h2>
     <ul class="notes">
-      <li>Cabeça e corpo saem da montagem <b>astro_pose_fixa_montagem.step</b> (pose-fixa/atualizacao_2026-11-05_bracos_cavidade). Cabeça sem antenas: casca, tampa, orelhas e pinos. Corpo: tronco retopo v2 em 10 segmentos, tubos da coluna e do ombro, quadril, cruzeta, buchas, diagonais, pescoço mínimo e placa A.</li>
+      <li>Cabeça e corpo saem da montagem <b>astro_pose_fixa_montagem.step</b> (pose-fixa/atualizacao_2026-11-05_bracos_cavidade). Cabeça sem antenas: casca, tampa, orelhas e pinos. Corpo: tronco retopo v2 em 10 segmentos, tubos da coluna e do ombro, quadril, cruzeta, buchas e diagonais.</li>
+      <li>Pescoço mínimo e placa A saem do corpo e viajam em pé, de lado, na caixa 1 ao lado da cabeça, com isopor entre os dois.</li>
       <li>Braços: <b>braco_D.stl</b> e <b>braco_E.stl</b> de stl_montagem da mesma atualização de 05/11, simplificados para 40 mil triângulos só para a tela.</li>
       <li>Pernas: <b>arquivos-milton/BXA_M_002_01.STEP</b> (08/11), que traz as duas pernas como dois sólidos. O BXA_P_002_01 (07/11) tem só a perna E e não foi usado.</li>
       <li>Antenas, barras de aço dos braços e tubos das pernas viajam soltos na caixa 3. A base Ø880 e as flanges das pernas viajam fora das caixas.</li>
-      <li>Cabeça e corpo viajam em pé, girados só no eixo vertical. As demais peças vão deitadas, com a menor medida na vertical.</li>
+      <li>Cabeça e corpo viajam em pé, girados só no eixo vertical. O pescoço vai em pé com a placa na vertical. As demais peças vão deitadas, com a menor medida na vertical.</li>
       <li>Medidas das peças: caixa envolvente da malha na orientação de viagem. A caixa 3 é arranjada por retângulos, sem aproveitar o formato em L dos braços.</li>
       <li>Caixa lisa: fundo e tampa inteiros, laterais longas entre eles, laterais curtas entre as longas. Sem ferragem, cantoneiras ou rodízios por enquanto.</li>
       <li>Massas das peças são <span class="est">ESTIMADAS</span>, sem pesagem.</li>
@@ -155,7 +156,7 @@ const $=id=>document.getElementById(id);
 const f0=v=>Math.round(v).toLocaleString('pt-BR');
 const f1=v=>v.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
 const f2=v=>v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-const NOMES={1:'Caixa 1 · Cabeça',2:'Caixa 2 · Corpo',3:'Caixa 3 · Braços, pernas e soltos'};
+const NOMES={1:'Caixa 1 · Cabeça e pescoço',2:'Caixa 2 · Corpo',3:'Caixa 3 · Braços, pernas e soltos'};
 let PECAS=[], GEO={}, P={}, CX={}, sel=null;
 let estado={1:null,2:null,3:null}; // {x,z,y,rot}
 let OPC3=[], opc3=0;
@@ -207,8 +208,9 @@ function calcula(){
         if(!ops.some(o=>Math.abs(o.L-L)<1&&Math.abs(o.H-H)<1)) ops.push({a:L*H,L,H,r});}
       ops.sort((a,b)=>a.a-b.a);
       const hmax=Math.max(...ps.map(p=>p.ext[1]))+2*fl;
-      OPC3=ops.map(b=>({cont:[b.L-g,hmax,b.H-g],lay:b.r.map(o=>({id:o.id,x:o.x+fl,z:o.y+fl,r:o.r}))}));
-      const esc=OPC3[Math.min(opc3,OPC3.length-1)];
+      const opts=ops.map(b=>({cont:[b.L-g,hmax,b.H-g],lay:b.r.map(o=>({id:o.id,x:o.x+fl,z:o.y+fl,r:o.r}))}));
+      if(k===3) OPC3=opts;
+      const esc=k===3?opts[Math.min(opc3,opts.length-1)]:opts[0];
       cont=esc.cont; lay=esc.lay;
     }
     const inn=cont.map(v=>v+2*P.iso), ext=inn.map(v=>v+2*P.mdf);
@@ -268,7 +270,7 @@ function nums(c){
   const viso=(c.inn[0]*c.inn[1]*c.inn[2]-c.cont[0]*c.cont[1]*c.cont[2])/1e9 + (c.k===3? 0:0);
   const aiso=isoPlacas(c).reduce((s,[_,a,b,n])=>s+a*b*n,0)/1e6;
   const viso2=aiso*P.iso/1000; // placas de isopor
-  let vsep=0; if(c.k===3){ // divisórias entre peças: área livre do piso × altura
+  let vsep=0; if(c.pecas.length>1){ // divisórias entre peças: área livre do piso × altura
     const ocup=c.pecas.reduce((s,p)=>s+(p.ext[0]+2*P.folga)*(p.ext[2]+2*P.folga),0);
     vsep=Math.max(0,(c.cont[0]*c.cont[2]-ocup))*c.cont[1]/1e9; }
   const miso=(viso2+vsep)*P.diso;
@@ -298,7 +300,7 @@ function fichas(){
     return `<details><summary>${NOMES[k]}: lista de corte</summary><div class="tw"><table>
       <tr><th>MDF ${P.mdf} mm</th><th class="n">Qtd.</th><th class="n">Medida</th></tr>${lin(cortes(c))}
       <tr><th>Isopor ${P.iso} mm</th><th class="n">Qtd.</th><th class="n">Medida</th></tr>${lin(isoPlacas(c))}
-      ${k===3?'<tr><td colspan="3" class="sub">Mais as divisórias de isopor entre as peças, recortadas no lugar.</td></tr>':''}
+      ${k!==2?'<tr><td colspan="3" class="sub">Mais as divisórias de isopor entre as peças, recortadas no lugar.</td></tr>':''}
       </table></div></details>`;}).join('');
   $('tPecas').innerHTML='<tr><th>Peça</th><th class="n">Caixa</th><th class="n">P × A × L de viagem</th><th class="n">Sólido</th><th class="n">Massa <span class="est">ESTIM.</span></th><th>Arquivo</th></tr>'+
     PECAS.map(p=>`<tr><td><span class="sw" style="background:${p.cor}"></span>${p.nome}</td><td class="n">${p.caixa}</td><td class="n">${p.ext.map(f0).join(' × ')}</td><td class="n">${p.cm3?f0(p.cm3)+' cm³':'n/d'}</td><td class="n">${f1(p.massa)} kg</td><td class="sub">${p.origem.length>3?p.origem.length+' sólidos da montagem':p.origem.join(', ')}</td></tr>`).join('');
@@ -393,7 +395,7 @@ function desenha(){ if(!renderer) return;
       if(L.r){ m.rotation.y=Math.PI/2; m.position.set(o+L.x, o+P.folga, o+L.z+p.ext[0]); }
       else m.position.set(o+L.x, o+P.folga, o+L.z);
       g.add(m);
-      if(k===3 && p.ext[0]>300) TAGS.push({t:p.nome.split(' (')[0],o:m,c:[p.ext[0]/2,p.ext[1],p.ext[2]/2],cls:''});
+      if((k===3 && p.ext[0]>300)||p.id==='pescoco') TAGS.push({t:p.nome.split(' (')[0],o:m,c:[p.ext[0]/2,p.ext[1],p.ext[2]/2],cls:''});
     }
     root.add(g);
     TAGS.push({t:`Caixa ${k} · ${f0(c.ext[0])}×${f0(c.ext[1])}×${f0(c.ext[2])}`,o:g,c:[w/2,h+8,d/2],cls:'cx'});

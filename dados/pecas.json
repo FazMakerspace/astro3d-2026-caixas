@@ -26,20 +26,20 @@
 },
 {
 "id": "corpo",
-"nome": "Corpo (tronco, pescoço e placa A)",
+"nome": "Corpo (tronco, quadril e ombro)",
 "caixa": 2,
 "massa": 4.5,
 "cor": "#3d7fc4",
 "ext": [
-410.3,
-448.4,
-404.7
+414.5,
+410.4,
+378.6
 ],
-"nv": 24887,
+"nv": 18301,
 "ov": 853800,
-"ni": 159084,
-"oi": 1003124,
-"cm3": 5781.6,
+"ni": 119010,
+"oi": 963608,
+"cm3": 4153.6,
 "origem": [
 "Torso_seg_01",
 "Torso_seg_02",
@@ -62,7 +62,26 @@
 "Tubo_diagonal_extra_E_1pol",
 "Tubo_diagonal_extra_D_1pol",
 "Abracadeira_diagonal_extra_E_conceito",
-"Abracadeira_diagonal_extra_D_conceito",
+"Abracadeira_diagonal_extra_D_conceito"
+]
+},
+{
+"id": "pescoco",
+"nome": "Pescoço mínimo + placa A",
+"caixa": 1,
+"massa": 1.6,
+"cor": "#2f9c9a",
+"ext": [
+68.6,
+334.3,
+334.3
+],
+"nv": 6587,
+"ov": 1439648,
+"ni": 40074,
+"oi": 1479172,
+"cm3": 1628.0,
+"origem": [
 "Pescoco_minimo",
 "Placa_A_MDF_9mm"
 ]
@@ -79,9 +98,9 @@
 230.0
 ],
 "nv": 19388,
-"ov": 1639460,
+"ov": 1639468,
 "ni": 120000,
-"oi": 1755788,
+"oi": 1755796,
 "cm3": null,
 "origem": [
 "braco_E_web"
@@ -99,9 +118,9 @@
 254.1
 ],
 "nv": 19331,
-"ov": 2235788,
+"ov": 2235796,
 "ni": 120000,
-"oi": 2351776,
+"oi": 2351784,
 "cm3": null,
 "origem": [
 "braco_D_web"
@@ -119,9 +138,9 @@
 278.8
 ],
 "nv": 10312,
-"ov": 2831776,
+"ov": 2831784,
 "ni": 61860,
-"oi": 2893648,
+"oi": 2893656,
 "cm3": 5730.4,
 "origem": [
 "BXA_M_002_01_s1"
@@ -139,9 +158,9 @@
 274.7
 ],
 "nv": 9524,
-"ov": 3141088,
+"ov": 3141096,
 "ni": 57132,
-"oi": 3198232,
+"oi": 3198240,
 "cm3": 5604.1,
 "origem": [
 "BXA_M_002_01_s0"
@@ -159,9 +178,9 @@
 65.9
 ],
 "nv": 1030,
-"ov": 3426760,
+"ov": 3426768,
 "ni": 6426,
-"oi": 3432940,
+"oi": 3432948,
 "cm3": 60.1,
 "origem": [
 "Antena_Base_xpos",
@@ -181,9 +200,9 @@
 65.9
 ],
 "nv": 1038,
-"ov": 3458644,
+"ov": 3458652,
 "ni": 6474,
-"oi": 3464872,
+"oi": 3464880,
 "cm3": 60.1,
 "origem": [
 "Antena_Base_xneg",
@@ -203,9 +222,9 @@
 51.2
 ],
 "nv": 370,
-"ov": 3490768,
+"ov": 3490776,
 "ni": 2220,
-"oi": 3492988,
+"oi": 3492996,
 "cm3": 35.0,
 "origem": [
 "Barra_braco_E_D12_7"
@@ -223,9 +242,9 @@
 56.4
 ],
 "nv": 405,
-"ov": 3501868,
+"ov": 3501876,
 "ni": 2430,
-"oi": 3504300,
+"oi": 3504308,
 "cm3": 30.6,
 "origem": [
 "Barra_braco_D_D12_7"
@@ -243,9 +262,9 @@
 25.3
 ],
 "nv": 144,
-"ov": 3514020,
+"ov": 3514028,
 "ni": 864,
-"oi": 3514884,
+"oi": 3514892,
 "cm3": 84.9,
 "origem": [
 "Tubo_perna_E_1pol"
@@ -263,9 +282,9 @@
 25.3
 ],
 "nv": 144,
-"ov": 3518340,
+"ov": 3518348,
 "ni": 864,
-"oi": 3519204,
+"oi": 3519212,
 "cm3": 83.6,
 "origem": [
 "Tubo_perna_D_1pol"
