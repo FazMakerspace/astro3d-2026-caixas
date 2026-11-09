@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta charset="utf-8">
+<title>Caixas de Transporte do Astro</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: bancada de oficina — painel de parâmetros à esquerda, cena 3D à direita, fichas técnicas embaixo */
+:root{
+  --bg:#f3f4f2; --panel:#ffffff; --fg:#1d2226; --muted:#5d666d; --line:#d9ddd8;
+  --mdf:#b8875a; --accent:#a8642c; --ok:#2f7d4f; --warn:#b5521f; --scene:#e9ebe7;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#15191c; --panel:#1d2327; --fg:#e4e7e5; --muted:#9aa4aa; --line:#323a40;
+  --mdf:#c79a6c; --accent:#e0965a; --ok:#5fbf86; --warn:#ef8a55; --scene:#1a1f23; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#15191c; --panel:#1d2327; --fg:#e4e7e5; --muted:#9aa4aa; --line:#323a40;
+  --mdf:#c79a6c; --accent:#e0965a; --ok:#5fbf86; --warn:#ef8a55; --scene:#1a1f23; color-scheme:dark}
+html,body{background:var(--bg);color:var(--fg)}
+body{font-family:var(--sans);font-size:14px;line-height:1.45;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 40px}
+h1{font-size:20px;font-weight:600;margin:0;text-wrap:balance}
+h2{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 8px}
+.top{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;margin-bottom:12px}
+.sub{color:var(--muted);font-size:13px}
+.strip{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{font-family:var(--mono);font-size:12.5px;border:1px solid var(--line);background:var(--panel);border-radius:4px;padding:5px 9px;font-variant-numeric:tabular-nums}
+.chip b{font-weight:500}
+.chip.warn{border-color:var(--warn);color:var(--warn)}
+.chip.ok{border-color:var(--ok);color:var(--ok)}
+.main{display:grid;grid-template-columns:290px minmax(0,1fr);gap:12px}
+@media (max-width:860px){.main{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px;min-width:0}
+.params{display:flex;flex-direction:column;gap:14px}
+.grp{display:grid;grid-template-columns:1fr 92px;gap:6px 8px;align-items:center}
+.grp label{font-size:13px}
+.grp input[type=number]{width:100%;box-sizing:border-box;font-family:var(--mono);font-size:13px;padding:4px 6px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg);text-align:right}
+.checks{display:flex;flex-direction:column;gap:5px;font-size:13px}
+button{font-family:var(--sans);font-size:13px;padding:6px 10px;border-radius:4px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+button.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.btns{display:flex;flex-wrap:wrap;gap:6px}
+.sel{font-size:13px;color:var(--muted)}
+.sel b{color:var(--fg)}
+.scene{position:relative;background:var(--scene);border:1px solid var(--line);border-radius:6px;overflow:hidden;min-height:420px;height:68vh}
+.scene canvas{display:block;width:100%;height:100%}
+#load{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);text-align:center;padding:24px}
+.views{position:absolute;top:8px;left:8px;display:flex;gap:4px;flex-wrap:wrap}
+.views button{padding:4px 8px;font-size:12px;background:var(--panel)}
+.tag{position:absolute;pointer-events:none;transform:translate(-50%,-100%);font-family:var(--mono);font-size:11.5px;background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:2px 6px;white-space:nowrap}
+.legend{position:absolute;bottom:8px;left:8px;font-size:12px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:4px 8px}
+.below{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:12px}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:12px}
+td.n,th.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+details{border-top:1px solid var(--line);padding-top:8px;margin-top:8px}
+summary{cursor:pointer;font-weight:500}
+.notes{color:var(--muted);font-size:13px;max-width:80ch}
+.notes li{margin-bottom:4px}
+.est{font-size:11px;color:var(--warn);font-family:var(--mono)}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+a{color:var(--accent)}
+</style>
+
+</head>
+<body>
+<div class="top">
+  <div><h1>Caixas de Transporte do Astro</h1>
+  <div class="sub">OS-2026-0821 · pose fixa · caixa lisa de MDF, sem ferragem · todas as medidas em mm</div></div>
+  <div class="sub" id="fonte">Fonte: pasta pose-fixa no Drive da OS · <a href="https://fazmakerspace.github.io/astro3d-2026-pose-fixa/">modelo da pose fixa</a></div>
+</div>
+<div class="strip" id="strip"></div>
+
+<div class="main">
+  <div class="panel params">
+    <div><h2>Proteção e caixa</h2>
+      <div class="grp">
+        <label for="iso">Isopor em volta (mm)</label><input id="iso" type="number" value="20" min="0" step="5">
+        <label for="gap">Isopor entre peças, caixa 3 (mm)</label><input id="gap" type="number" value="20" min="0" step="5">
+        <label for="mdf">Parede de MDF (mm)</label><input id="mdf" type="number" value="6" min="3" step="1">
+        <label for="folga">Folga peça × isopor (mm)</label><input id="folga" type="number" value="0" min="0" step="1">
+      </div></div>
+    <div><h2>Volume de transporte</h2>
+      <div class="grp">
+        <label for="vp">Profundidade</label><input id="vp" type="number" value="1800" step="50">
+        <label for="vl">Largura</label><input id="vl" type="number" value="1000" step="50">
+        <label for="va">Altura</label><input id="va" type="number" value="600" step="50">
+        <label for="vc">Espaço entre caixas</label><input id="vc" type="number" value="10" min="0" step="5">
+        <label for="porta">Vão de porta</label><input id="porta" type="number" value="760" step="10">
+      </div></div>
+    <div><h2>Materiais</h2>
+      <div class="grp">
+        <label for="dmdf">MDF (kg/m³)</label><input id="dmdf" type="number" value="750" step="10">
+        <label for="diso">Isopor denso (kg/m³)</label><input id="diso" type="number" value="30" step="5">
+      </div></div>
+    <div><h2>Exibir</h2>
+      <div class="checks">
+        <label><input type="checkbox" id="vMdf" checked> Paredes de MDF</label>
+        <label><input type="checkbox" id="vIso" checked> Isopor</label>
+        <label><input type="checkbox" id="vVol" checked> Volume de transporte</label>
+        <label><input type="checkbox" id="vTag" checked> Etiquetas</label>
+        <label><input type="checkbox" id="vExp"> Afastar as caixas (vista explodida)</label>
+      </div></div>
+    <div><h2>Arranjo</h2>
+      <div class="sel" id="selinfo">Toque numa caixa na cena para selecionar.</div>
+      <div class="btns" style="margin-top:8px">
+        <button id="bRot">Girar 90°</button>
+        <button id="bXm">◀ P</button><button id="bXp">P ▶</button>
+        <button id="bZm">▲ L</button><button id="bZp">L ▼</button>
+        <button id="bUp">Subir</button><button id="bDn">Descer</button>
+      </div>
+      <div class="btns" style="margin-top:8px"><button class="pri" id="bAuto">Arranjo automático</button><button id="bC3">Outro formato da caixa 3</button></div>
+      <div class="sub" id="c3info" style="margin-top:6px"></div>
+      <div class="sub" style="margin-top:6px">Cada clique nas setas move 50 mm.</div>
+    </div>
+  </div>
+  <div class="scene" id="scene">
+    <canvas id="cv"></canvas>
+    <div id="tags"></div>
+    <div class="views"><button data-v="persp">Perspectiva</button><button data-v="topo">Topo</button><button data-v="frente">Frente</button><button data-v="lado">Lado</button></div>
+    <div class="legend">P = profundidade · L = largura · A = altura</div>
+    <div id="load">Carregando as peças…</div>
+  </div>
+</div>
+
+<div class="below">
+  <div class="panel"><h2>Ficha das caixas</h2><div class="tw"><table id="tCaixas"></table></div>
+    <div id="cortes"></div></div>
+  <div class="panel"><h2>Peças</h2><div class="tw"><table id="tPecas"></table></div></div>
+  <div class="panel"><h2>Premissas e origem dos dados</h2>
+    <ul class="notes">
+      <li>Cabeça e corpo saem da montagem <b>astro_pose_fixa_montagem.step</b> (pose-fixa/atualizacao_2026-11-05_bracos_cavidade). Cabeça sem antenas: casca, tampa, orelhas e pinos. Corpo: tronco retopo v2 em 10 segmentos, tubos da coluna e do ombro, quadril, cruzeta, buchas, diagonais, pescoço mínimo e placa A.</li>
+      <li>Braços: <b>braco_D.stl</b> e <b>braco_E.stl</b> de stl_montagem da mesma atualização de 05/11, simplificados para 40 mil triângulos só para a tela.</li>
+      <li>Pernas: <b>arquivos-milton/BXA_M_002_01.STEP</b> (08/11), que traz as duas pernas como dois sólidos. O BXA_P_002_01 (07/11) tem só a perna E e não foi usado.</li>
+      <li>Antenas, barras de aço dos braços e tubos das pernas viajam soltos na caixa 3. A base Ø880 e as flanges das pernas viajam fora das caixas.</li>
+      <li>Cabeça e corpo viajam em pé, girados só no eixo vertical. As demais peças vão deitadas, com a menor medida na vertical.</li>
+      <li>Medidas das peças: caixa envolvente da malha na orientação de viagem. A caixa 3 é arranjada por retângulos, sem aproveitar o formato em L dos braços.</li>
+      <li>Caixa lisa: fundo e tampa inteiros, laterais longas entre eles, laterais curtas entre as longas. Sem ferragem, cantoneiras ou rodízios por enquanto.</li>
+      <li>Massas das peças são <span class="est">ESTIMADAS</span>, sem pesagem.</li>
+    </ul></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const f0=v=>Math.round(v).toLocaleString('pt-BR');
+const f1=v=>v.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
+const f2=v=>v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const NOMES={1:'Caixa 1 · Cabeça',2:'Caixa 2 · Corpo',3:'Caixa 3 · Braços, pernas e soltos'};
+let PECAS=[], GEO={}, P={}, CX={}, sel=null;
+let estado={1:null,2:null,3:null}; // {x,z,y,rot}
+let OPC3=[], opc3=0;
+
+function par(){const g=id=>parseFloat($(id).value)||0;
+  return {iso:g('iso'),gap:g('gap'),mdf:g('mdf'),folga:g('folga'),vp:g('vp'),vl:g('vl'),va:g('va'),vc:g('vc'),porta:g('porta'),dmdf:g('dmdf'),diso:g('diso')};}
+
+// ---------- MaxRects (melhor lado curto) ----------
+function maxrects(W,H,items){
+  let free=[{x:0,y:0,w:W,h:H}], out=[];
+  for(const it of items){
+    let best=null;
+    for(const r of (it.fixo?[0]:[0,1])){
+      const w=r?it.h:it.w, h=r?it.w:it.h;
+      for(const f of free){ if(w<=f.w+1e-6&&h<=f.h+1e-6){
+        const s=Math.min(f.w-w,f.h-h), l=Math.max(f.w-w,f.h-h);
+        if(!best||s<best.s||(s===best.s&&l<best.l)) best={x:f.x,y:f.y,w,h,r,s,l};}}
+    }
+    if(!best) return null;
+    out.push({id:it.id,x:best.x,y:best.y,w:best.w,h:best.h,r:best.r});
+    const nf=[];
+    for(const f of free){
+      if(best.x>=f.x+f.w||best.x+best.w<=f.x||best.y>=f.y+f.h||best.y+best.h<=f.y){nf.push(f);continue;}
+      if(best.x>f.x) nf.push({x:f.x,y:f.y,w:best.x-f.x,h:f.h});
+      if(best.x+best.w<f.x+f.w) nf.push({x:best.x+best.w,y:f.y,w:f.x+f.w-best.x-best.w,h:f.h});
+      if(best.y>f.y) nf.push({x:f.x,y:f.y,w:f.w,h:best.y-f.y});
+      if(best.y+best.h<f.y+f.h) nf.push({x:f.x,y:best.y+best.h,w:f.w,h:f.y+f.h-best.y-best.h});
+    }
+    free=nf.filter((a,i)=>!nf.some((b,j)=>j!==i&&a.x>=b.x&&a.y>=b.y&&a.x+a.w<=b.x+b.w&&a.y+a.h<=b.y+b.h&&(j<i||a.w!==b.w||a.h!==b.h||a.x!==b.x||a.y!==b.y)));
+  }
+  return out;
+}
+
+// ---------- Caixas ----------
+function calcula(){
+  P=par(); const fl=P.folga;
+  for(const k of [1,2,3]){
+    const ps=PECAS.filter(p=>p.caixa===k);
+    let cont, lay=[];
+    if(ps.length===1){ const p=ps[0];
+      cont=[p.ext[0]+2*fl,p.ext[1]+2*fl,p.ext[2]+2*fl];
+      lay=[{id:p.id,x:fl,z:fl,r:0}];
+    } else {
+      const g=P.gap, items=ps.map(p=>({id:p.id,w:p.ext[0]+2*fl+g,h:p.ext[2]+2*fl+g})).sort((a,b)=>b.w*b.h-a.w*a.h);
+      const maxd=Math.max(...items.map(i=>Math.min(i.w,i.h))), soma=items.reduce((s,i)=>s+Math.max(i.w,i.h),0);
+      let ops=[];
+      for(let W=maxd;W<=soma+1;W+=5){ const r=maxrects(W,1e5,items); if(!r) continue;
+        const L=Math.max(...r.map(o=>o.x+o.w)), H=Math.max(...r.map(o=>o.y+o.h));
+        if(!ops.some(o=>Math.abs(o.L-L)<1&&Math.abs(o.H-H)<1)) ops.push({a:L*H,L,H,r});}
+      ops.sort((a,b)=>a.a-b.a);
+      const hmax=Math.max(...ps.map(p=>p.ext[1]))+2*fl;
+      OPC3=ops.map(b=>({cont:[b.L-g,hmax,b.H-g],lay:b.r.map(o=>({id:o.id,x:o.x+fl,z:o.y+fl,r:o.r}))}));
+      const esc=OPC3[Math.min(opc3,OPC3.length-1)];
+      cont=esc.cont; lay=esc.lay;
+    }
+    const inn=cont.map(v=>v+2*P.iso), ext=inn.map(v=>v+2*P.mdf);
+    CX[k]={k,cont,inn,ext,lay,pecas:ps};
+  }
+  if(!estado[1]) auto(); else confere();
+}
+function aplicaOpc3(){ const c=OPC3[opc3]; if(!c) return; const inn=c.cont.map(v=>v+2*P.iso), ext=inn.map(v=>v+2*P.mdf);
+  Object.assign(CX[3],{cont:c.cont,lay:c.lay,inn,ext}); }
+function pegada(k){const c=CX[k], r=estado[k].rot; return r?[c.ext[2],c.ext[0]]:[c.ext[0],c.ext[2]];}
+function auto(){
+  const g=P.vc, ks=[1,2,3];
+  const items=ks.map(k=>({id:k,w:CX[k].ext[0]+g,h:CX[k].ext[2]+g}));
+  let melhor=null;
+  const perms=[[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]];
+  // tenta os formatos da caixa 3 do mais compacto para o mais alongado, até as três caberem no piso
+  const lim=OPC3.length;
+  busca: for(let i=0;i<lim;i++){
+    const c=OPC3[i], inn=c.cont.map(v=>v+2*P.iso), ext=inn.map(v=>v+2*P.mdf);
+    items[2]={id:3,w:ext[0]+g,h:ext[2]+g};
+    for(const pm of perms){ const r=maxrects(P.vp+g,P.vl+g,pm.map(j=>items[j])); if(r){melhor=r; opc3=i; break busca;} }
+  }
+  if(!melhor){ opc3=0; items[2]={id:3,w:CX[3].ext[0]+g,h:CX[3].ext[2]+g}; }
+  aplicaOpc3();
+  estado={};
+  if(melhor){ for(const o of melhor) estado[o.id]={x:o.x,z:o.y,y:0,rot:o.r}; }
+  else {
+    // não cabe tudo no piso: põe as duas maiores no chão e empilha a menor sobre a que tiver mais altura livre
+    const ord=[...ks].sort((a,b)=>CX[b].ext[0]*CX[b].ext[2]-CX[a].ext[0]*CX[a].ext[2]);
+    const r=maxrects(P.vp+g,P.vl+g,ord.slice(0,2).map(k=>items[k-1]))||[];
+    for(const o of r) estado[o.id]={x:o.x,z:o.y,y:0,rot:o.r};
+    const k=ord[2]; let base=ord[0]; if(CX[ord[1]].ext[1]<CX[ord[0]].ext[1]) base=ord[1];
+    const b=estado[base]||{x:0,z:0,y:0,rot:0};
+    estado[k]={x:b.x,z:b.z,y:CX[base].ext[1],rot:0};
+  }
+  confere();
+}
+function confere(){
+  for(const k of [1,2,3]) if(!estado[k]) estado[k]={x:0,z:0,y:0,rot:0};
+  desenha(); fichas();
+}
+function choques(){const out=[];
+  const bb=k=>{const [w,d]=pegada(k), s=estado[k]; return {x0:s.x,x1:s.x+w,z0:s.z,z1:s.z+d,y0:s.y,y1:s.y+CX[k].ext[1]};};
+  for(const [a,b] of [[1,2],[1,3],[2,3]]){const A=bb(a),B=bb(b);
+    if(A.x0<B.x1-0.5&&B.x0<A.x1-0.5&&A.z0<B.z1-0.5&&B.z0<A.z1-0.5&&A.y0<B.y1-0.5&&B.y0<A.y1-0.5) out.push(a+' e '+b);}
+  return out;}
+
+// ---------- Fichas ----------
+function cortes(c){const [L,A,W]=c.ext, t=P.mdf;
+  return [['Fundo',L,W,1],['Tampa',L,W,1],['Lateral longa',L,A-2*t,2],['Lateral curta',W-2*t,A-2*t,2]];}
+function isoPlacas(c){const [L,A,W]=c.inn, t=P.iso;
+  return [['Fundo',L,W,1],['Topo',L,W,1],['Lateral longa',L,A-2*t,2],['Lateral curta',W-2*t,A-2*t,2]];}
+function nums(c){
+  const vext=c.ext[0]*c.ext[1]*c.ext[2]/1e9;
+  const amdf=cortes(c).reduce((s,[_,a,b,n])=>s+a*b*n,0)/1e6;
+  const mmdf=amdf*P.mdf/1000*P.dmdf;
+  const viso=(c.inn[0]*c.inn[1]*c.inn[2]-c.cont[0]*c.cont[1]*c.cont[2])/1e9 + (c.k===3? 0:0);
+  const aiso=isoPlacas(c).reduce((s,[_,a,b,n])=>s+a*b*n,0)/1e6;
+  const viso2=aiso*P.iso/1000; // placas de isopor
+  let vsep=0; if(c.k===3){ // divisórias entre peças: área livre do piso × altura
+    const ocup=c.pecas.reduce((s,p)=>s+(p.ext[0]+2*P.folga)*(p.ext[2]+2*P.folga),0);
+    vsep=Math.max(0,(c.cont[0]*c.cont[2]-ocup))*c.cont[1]/1e9; }
+  const miso=(viso2+vsep)*P.diso;
+  const mp=c.pecas.reduce((s,p)=>s+p.massa,0);
+  const pmin=Math.min(c.ext[0],c.ext[2]);
+  return {vext,amdf,mmdf,aiso,viso:viso2+vsep,miso,mp,tot:mmdf+miso+mp,porta:Math.min(pmin,c.ext[1])<=P.porta};
+}
+function fichas(){
+  const N={1:nums(CX[1]),2:nums(CX[2]),3:nums(CX[3])};
+  const row=(t,f,cls='n')=>`<tr><td>${t}</td>${[1,2,3].map(k=>`<td class="${cls}">${f(CX[k],N[k])}</td>`).join('')}</tr>`;
+  const dim=v=>v.map(f0).join(' × ');
+  $('tCaixas').innerHTML=`<tr><th></th>${[1,2,3].map(k=>`<th class="n">${NOMES[k]}</th>`).join('')}</tr>`+
+    row('Externa P × A × L',c=>dim([c.ext[0],c.ext[1],c.ext[2]]))+
+    row('Interna (dentro do MDF)',c=>dim([c.inn[0],c.inn[1],c.inn[2]]))+
+    row('Espaço das peças',c=>dim([c.cont[0],c.cont[1],c.cont[2]]))+
+    row('Volume externo',(c,n)=>f2(n.vext)+' m³')+
+    row('MDF '+P.mdf+' mm, área',(c,n)=>f2(n.amdf)+' m²')+
+    row('MDF, massa',(c,n)=>f1(n.mmdf)+' kg')+
+    row('Isopor, volume',(c,n)=>f0(n.viso*1000)+' L')+
+    row('Isopor, massa',(c,n)=>f1(n.miso)+' kg')+
+    row('Peças, massa <span class="est">ESTIM.</span>',(c,n)=>f1(n.mp)+' kg')+
+    row('Total',(c,n)=>'<b>'+f1(n.tot)+' kg</b>')+
+    row('Passa no vão de '+f0(P.porta),(c,n)=>n.porta?'sim':'<span style="color:var(--warn)">não</span>')+
+    row('Altura no volume',c=>{const top=estado[c.k].y+c.ext[1]; return top>P.va?`<span style="color:var(--warn)">${f0(top)} (+${f0(top-P.va)})</span>`:f0(top);});
+  $('cortes').innerHTML=[1,2,3].map(k=>{const c=CX[k];
+    const lin=(arr)=>arr.map(([n,a,b,q])=>`<tr><td>${n}</td><td class="n">${q}</td><td class="n">${f0(a)} × ${f0(b)}</td></tr>`).join('');
+    return `<details><summary>${NOMES[k]}: lista de corte</summary><div class="tw"><table>
+      <tr><th>MDF ${P.mdf} mm</th><th class="n">Qtd.</th><th class="n">Medida</th></tr>${lin(cortes(c))}
+      <tr><th>Isopor ${P.iso} mm</th><th class="n">Qtd.</th><th class="n">Medida</th></tr>${lin(isoPlacas(c))}
+      ${k===3?'<tr><td colspan="3" class="sub">Mais as divisórias de isopor entre as peças, recortadas no lugar.</td></tr>':''}
+      </table></div></details>`;}).join('');
+  $('tPecas').innerHTML='<tr><th>Peça</th><th class="n">Caixa</th><th class="n">P × A × L de viagem</th><th class="n">Sólido</th><th class="n">Massa <span class="est">ESTIM.</span></th><th>Arquivo</th></tr>'+
+    PECAS.map(p=>`<tr><td><span class="sw" style="background:${p.cor}"></span>${p.nome}</td><td class="n">${p.caixa}</td><td class="n">${p.ext.map(f0).join(' × ')}</td><td class="n">${p.cm3?f0(p.cm3)+' cm³':'n/d'}</td><td class="n">${f1(p.massa)} kg</td><td class="sub">${p.origem.length>3?p.origem.length+' sólidos da montagem':p.origem.join(', ')}</td></tr>`).join('');
+  // faixa de resumo
+  const top=Math.max(...[1,2,3].map(k=>estado[k].y+CX[k].ext[1]));
+  const vol=[1,2,3].reduce((s,k)=>s+N[k].vext,0), mt=[1,2,3].reduce((s,k)=>s+N[k].tot,0);
+  let xmax=0,zmax=0; for(const k of [1,2,3]){const [w,d]=pegada(k); xmax=Math.max(xmax,estado[k].x+w); zmax=Math.max(zmax,estado[k].z+d);}
+  const ch=choques(), fora=xmax>P.vp+0.5||zmax>P.vl+0.5;
+  $('strip').innerHTML=
+    `<span class="chip">3 caixas · <b>${f2(vol)} m³</b></span>`+
+    `<span class="chip">Massa total <b>${f1(mt)} kg</b> <span class="est">ESTIM.</span></span>`+
+    `<span class="chip ${fora?'warn':'ok'}">Piso usado <b>${f0(xmax)} × ${f0(zmax)}</b> de ${f0(P.vp)} × ${f0(P.vl)}</span>`+
+    `<span class="chip ${top>P.va?'warn':'ok'}">Altura <b>${f0(top)}</b>${top>P.va?' · passa '+f0(top-P.va)+' de '+f0(P.va):' · dentro de '+f0(P.va)}</span>`+
+    (ch.length?`<span class="chip warn">Caixas se cruzando: ${ch.join(', ')}</span>`:'');
+  $('c3info').textContent=`Caixa 3: formato ${opc3+1} de ${OPC3.length} (1 = mais compacto).`;
+  if(sel){const s=estado[sel]; $('selinfo').innerHTML=`<b>${NOMES[sel]}</b> em P ${f0(s.x)}, L ${f0(s.z)}, A ${f0(s.y)}${s.rot?' · girada 90°':''}`;}
+}
+
+// ---------- 3D ----------
+let renderer,scene,camera,controls,root,picks=[];
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+function init3d(){
+  const cv=$('cv');
+  try{ renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true}); }
+  catch(e){ $('load').textContent='Este navegador não abriu o 3D (WebGL indisponível). As fichas abaixo continuam valendo; tente abrir o link no navegador do sistema.'; return false; }
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  scene=new THREE.Scene();
+  const fundo=()=>renderer.setClearColor(new THREE.Color(css('--scene')),1); fundo();
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{fundo();desenha();});
+  new MutationObserver(()=>{fundo();desenha();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  camera=new THREE.PerspectiveCamera(35,1,10,20000);
+  controls=new THREE.OrbitControls(camera,cv); controls.enableDamping=true;
+  scene.add(new THREE.HemisphereLight(0xffffff,0x8a8070,0.75));
+  const d=new THREE.DirectionalLight(0xffffff,0.65); d.position.set(-1500,3000,2200); scene.add(d);
+  const d2=new THREE.DirectionalLight(0xffffff,0.25); d2.position.set(2500,1200,-1500); scene.add(d2);
+  root=new THREE.Group(); scene.add(root);
+  vista('persp');
+  new ResizeObserver(tam).observe($('scene')); tam();
+  cv.addEventListener('pointerdown',e=>{cv._d=[e.clientX,e.clientY];});
+  cv.addEventListener('pointerup',e=>{ if(!cv._d) return; if(Math.hypot(e.clientX-cv._d[0],e.clientY-cv._d[1])>5) return;
+    const r=cv.getBoundingClientRect(), m=new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);
+    const rc=new THREE.Raycaster(); rc.setFromCamera(m,camera); const h=rc.intersectObjects(picks,false);
+    sel=h.length?h[0].object.userData.k:null; desenha(); fichas(); });
+  (function loop(){requestAnimationFrame(loop); controls.update(); renderer.render(scene,camera); rotulos();})();
+  return true;
+}
+function tam(){const el=$('scene'),w=el.clientWidth,h=el.clientHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();}
+function vista(v){const c=new THREE.Vector3(P.vp/2||900,250,P.vl/2||500); controls.target.copy(c);
+  const D=3000;
+  if(v==='topo') camera.position.set(c.x,c.y+D*1.15,c.z+1);
+  else if(v==='frente') camera.position.set(c.x,c.y+150,c.z+D);
+  else if(v==='lado') camera.position.set(c.x+D,c.y+150,c.z);
+  else camera.position.set(c.x-1900,c.y+1700,c.z+2300);
+  camera.lookAt(c);}
+function geo(p){ if(GEO[p.id]) return GEO[p.id];
+  const q=new Uint16Array(BIN,p.ov,p.nv*3), idx=new Uint32Array(BIN,p.oi,p.ni), pos=new Float32Array(p.nv*3);
+  for(let i=0;i<p.nv;i++){pos[3*i]=q[3*i]/65535*p.ext[0];pos[3*i+1]=q[3*i+1]/65535*p.ext[1];pos[3*i+2]=q[3*i+2]/65535*p.ext[2];}
+  const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(pos,3)); g.setIndex(new THREE.BufferAttribute(idx,1)); g.computeVertexNormals();
+  return GEO[p.id]=g;}
+function caixaOca(w,h,d,t,mat){ // 5 faces + tampa, cada placa uma caixa fina
+  const g=new THREE.Group(), add=(sx,sy,sz,x,y,z)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),mat); m.position.set(x,y,z); g.add(m);};
+  add(w,t,d,w/2,t/2,d/2); add(w,t,d,w/2,h-t/2,d/2);
+  add(w,h-2*t,t,w/2,h/2,t/2); add(w,h-2*t,t,w/2,h/2,d-t/2);
+  add(t,h-2*t,d-2*t,t/2,h/2,d/2); add(t,h-2*t,d-2*t,w-t/2,h/2,d/2);
+  return g;}
+function aresta(w,h,d,cor,op=1){const e=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(w,h,d)),new THREE.LineBasicMaterial({color:cor,transparent:op<1,opacity:op})); e.position.set(w/2,h/2,d/2); return e;}
+let TAGS=[];
+function desenha(){ if(!renderer) return;
+  root.clear(); picks=[]; TAGS=[];
+  const mdfC=new THREE.Color(css('--mdf')), wv=$('vMdf').checked, iv=$('vIso').checked, exp=$('vExp').checked;
+  if($('vVol').checked){
+    root.add(aresta(P.vp,P.va,P.vl,new THREE.Color(css('--muted')),0.9));
+    const chao=new THREE.Mesh(new THREE.PlaneGeometry(P.vp,P.vl),new THREE.MeshBasicMaterial({color:new THREE.Color(css('--line')),transparent:true,opacity:0.5,side:THREE.DoubleSide}));
+    chao.rotation.x=-Math.PI/2; chao.position.set(P.vp/2,-0.5,P.vl/2); root.add(chao);
+  }
+  const ex={1:[0,0,0],2:[0,0,0],3:[0,0,0]}; if(exp){ex[1]=[-120,0,-120];ex[2]=[0,250,0];ex[3]=[160,0,160];}
+  for(const k of [1,2,3]){ const c=CX[k], s=estado[k];
+    const g=new THREE.Group(); const [w,h,d]=c.ext;
+    // estrutura local: x de 0..w, z de 0..d; giro em torno de Y
+    if(s.rot){ g.rotation.y=Math.PI/2; g.position.set(s.x+ex[k][0], s.y+ex[k][1], s.z+w+ex[k][2]); }
+    else g.position.set(s.x+ex[k][0], s.y+ex[k][1], s.z+ex[k][2]);
+    const hit=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshBasicMaterial({visible:false})); hit.position.set(w/2,h/2,d/2); hit.userData.k=k; g.add(hit); picks.push(hit);
+    if(wv){ const m=new THREE.MeshStandardMaterial({color:mdfC,roughness:0.85,transparent:true,opacity:sel===k?0.32:0.2,depthWrite:false});
+      g.add(caixaOca(w,h,d,P.mdf,m)); }
+    g.add(aresta(w,h,d,sel===k?new THREE.Color(css('--accent')):mdfC,1));
+    if(iv){ const ii=new THREE.Group(); ii.position.set(P.mdf,P.mdf,P.mdf);
+      const mi=new THREE.MeshStandardMaterial({color:0xf1f3f6,roughness:1,transparent:true,opacity:0.16,depthWrite:false});
+      ii.add(caixaOca(c.inn[0],c.inn[1],c.inn[2],P.iso,mi)); ii.add(aresta(c.inn[0],c.inn[1],c.inn[2],0xc9d0d8,0.7)); g.add(ii);}
+    const o=P.mdf+P.iso;
+    for(const L of c.lay){ const p=PECAS.find(q=>q.id===L.id);
+      const m=new THREE.Mesh(geo(p),new THREE.MeshStandardMaterial({color:new THREE.Color(p.cor),roughness:0.6,metalness:0.05}));
+      if(L.r){ m.rotation.y=Math.PI/2; m.position.set(o+L.x, o+P.folga, o+L.z+p.ext[0]); }
+      else m.position.set(o+L.x, o+P.folga, o+L.z);
+      g.add(m);
+      if(k===3 && p.ext[0]>300) TAGS.push({t:p.nome.split(' (')[0],o:m,c:[p.ext[0]/2,p.ext[1],p.ext[2]/2],cls:''});
+    }
+    root.add(g);
+    TAGS.push({t:`Caixa ${k} · ${f0(c.ext[0])}×${f0(c.ext[1])}×${f0(c.ext[2])}`,o:g,c:[w/2,h+8,d/2],cls:'cx'});
+  }
+  // plano da altura limite
+  const top=Math.max(...[1,2,3].map(k=>estado[k].y+CX[k].ext[1]));
+  if(top>P.va && $('vVol').checked){ const pl=new THREE.Mesh(new THREE.PlaneGeometry(P.vp,P.vl),new THREE.MeshBasicMaterial({color:new THREE.Color(css('--warn')),transparent:true,opacity:0.12,side:THREE.DoubleSide,depthWrite:false}));
+    pl.rotation.x=-Math.PI/2; pl.position.set(P.vp/2,P.va,P.vl/2); root.add(pl); }
+  const box=$('tags'); box.innerHTML=''; for(const t of TAGS){const e=document.createElement('div'); e.className='tag'; e.textContent=t.t; if(t.cls!=='cx') e.style.opacity='0.85'; box.appendChild(e); t.el=e;}
+}
+const _v=new THREE.Vector3();
+function rotulos(){ const on=$('vTag').checked, el=$('scene'), w=el.clientWidth, h=el.clientHeight;
+  for(const t of TAGS){ if(!on){t.el.hidden=true;continue;} _v.set(...t.c); t.o.localToWorld(_v); _v.project(camera);
+    if(_v.z>1){t.el.hidden=true;continue;} t.el.hidden=false; t.el.style.left=((_v.x+1)/2*w)+'px'; t.el.style.top=((1-_v.y)/2*h)+'px'; }}
+
+// ---------- Controles ----------
+['iso','gap','mdf','folga','vp','vl','va','vc','porta','dmdf','diso'].forEach(id=>$(id).addEventListener('change',()=>{ const reauto=['iso','gap','mdf','folga','vp','vl','vc'].includes(id); calcula(); if(reauto) auto(); }));
+['vMdf','vIso','vVol','vTag','vExp'].forEach(id=>$(id).addEventListener('change',desenha));
+document.querySelectorAll('.views button').forEach(b=>b.addEventListener('click',()=>vista(b.dataset.v)));
+const mexe=(f)=>()=>{ if(!sel){$('selinfo').textContent='Selecione uma caixa na cena primeiro.';return;} f(estado[sel]); confere(); };
+$('bRot').onclick=mexe(s=>s.rot=s.rot?0:1);
+$('bXm').onclick=mexe(s=>s.x-=50); $('bXp').onclick=mexe(s=>s.x+=50);
+$('bZm').onclick=mexe(s=>s.z-=50); $('bZp').onclick=mexe(s=>s.z+=50);
+$('bUp').onclick=mexe(s=>{ // sobe até o topo da caixa mais alta abaixo dela
+  const outras=[1,2,3].filter(k=>k!==sel).map(k=>estado[k].y+CX[k].ext[1]).filter(v=>v>s.y+1).sort((a,b)=>a-b);
+  s.y=outras.length?outras[0]:s.y+50;});
+$('bDn').onclick=mexe(s=>{ const outras=[0,...[1,2,3].filter(k=>k!==sel).map(k=>estado[k].y+CX[k].ext[1])].filter(v=>v<s.y-1).sort((a,b)=>b-a); s.y=outras.length?outras[0]:0;});
+$('bAuto').onclick=()=>{auto();};
+$('bC3').onclick=()=>{ if(!OPC3.length) return; opc3=(opc3+1)%OPC3.length; aplicaOpc3(); confere(); };
+
+let BIN;
+(async()=>{
+  try{
+    const [j,b]=await Promise.all([fetch('dados/pecas.json').then(r=>{if(!r.ok)throw new Error('pecas.json '+r.status);return r.json()}),fetch('dados/pecas.bin').then(r=>{if(!r.ok)throw new Error('pecas.bin '+r.status);return r.arrayBuffer()})]);
+    PECAS=j; BIN=b;
+  }catch(e){ $('load').textContent='Não consegui carregar as peças ('+e.message+'). Recarregue a página.'; return; }
+  P=par(); const ok=init3d(); calcula(); if(ok){ $('load').hidden=true; vista('persp'); }
+})();
+</script>
+
+</body>
+</html>

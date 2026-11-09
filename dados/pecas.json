@@ -1,0 +1,274 @@
+[
+{
+"id": "cabeca",
+"nome": "Cabeça (sem antenas)",
+"caixa": 1,
+"massa": 10.0,
+"cor": "#c9a227",
+"ext": [
+704.8,
+636.0,
+643.6
+],
+"nv": 28432,
+"ov": 0,
+"ni": 170802,
+"oi": 170592,
+"cm3": 6093.7,
+"origem": [
+"Casca_sem_tampa",
+"Tampa",
+"Orelha_xpos",
+"Orelha_xneg",
+"Pino_frente_xpos",
+"Pino_frente_xneg"
+]
+},
+{
+"id": "corpo",
+"nome": "Corpo (tronco, pescoço e placa A)",
+"caixa": 2,
+"massa": 4.5,
+"cor": "#3d7fc4",
+"ext": [
+410.3,
+448.4,
+404.7
+],
+"nv": 24887,
+"ov": 853800,
+"ni": 159084,
+"oi": 1003124,
+"cm3": 5781.6,
+"origem": [
+"Torso_seg_01",
+"Torso_seg_02",
+"Torso_seg_03",
+"Torso_seg_04",
+"Torso_seg_05",
+"Torso_seg_06",
+"Torso_seg_07",
+"Torso_seg_08",
+"Torso_seg_09",
+"Torso_seg_10",
+"Tubo_coluna_1_5pol",
+"Tubo_ombro_1pol",
+"Peca_quadril_conceito",
+"Peca_cruzeta_ombro_conceito",
+"Bucha_E_impressa",
+"Bucha_D_impressa",
+"Parafuso_trava_E_M5",
+"Parafuso_trava_D_M5",
+"Tubo_diagonal_extra_E_1pol",
+"Tubo_diagonal_extra_D_1pol",
+"Abracadeira_diagonal_extra_E_conceito",
+"Abracadeira_diagonal_extra_D_conceito",
+"Pescoco_minimo",
+"Placa_A_MDF_9mm"
+]
+},
+{
+"id": "braco_E",
+"nome": "Braço E",
+"caixa": 3,
+"massa": 2.0,
+"cor": "#d0623a",
+"ext": [
+611.8,
+141.9,
+230.0
+],
+"nv": 19388,
+"ov": 1639460,
+"ni": 120000,
+"oi": 1755788,
+"cm3": null,
+"origem": [
+"braco_E_web"
+]
+},
+{
+"id": "braco_D",
+"nome": "Braço D",
+"caixa": 3,
+"massa": 2.0,
+"cor": "#d0623a",
+"ext": [
+506.5,
+154.3,
+254.1
+],
+"nv": 19331,
+"ov": 2235788,
+"ni": 120000,
+"oi": 2351776,
+"cm3": null,
+"origem": [
+"braco_D_web"
+]
+},
+{
+"id": "perna_E",
+"nome": "Perna E (Milton, BXA_M s1)",
+"caixa": 3,
+"massa": 3.0,
+"cor": "#5a9e5a",
+"ext": [
+285.6,
+174.5,
+278.8
+],
+"nv": 10312,
+"ov": 2831776,
+"ni": 61860,
+"oi": 2893648,
+"cm3": 5730.4,
+"origem": [
+"BXA_M_002_01_s1"
+]
+},
+{
+"id": "perna_D",
+"nome": "Perna D (Milton, BXA_M s0)",
+"caixa": 3,
+"massa": 3.0,
+"cor": "#5a9e5a",
+"ext": [
+287.2,
+174.3,
+274.7
+],
+"nv": 9524,
+"ov": 3141088,
+"ni": 57132,
+"oi": 3198232,
+"cm3": 5604.1,
+"origem": [
+"BXA_M_002_01_s0"
+]
+},
+{
+"id": "antena_E",
+"nome": "Antena E",
+"caixa": 3,
+"massa": 0.1,
+"cor": "#9a7cc4",
+"ext": [
+152.6,
+47.7,
+65.9
+],
+"nv": 1030,
+"ov": 3426760,
+"ni": 6426,
+"oi": 3432940,
+"cm3": 60.1,
+"origem": [
+"Antena_Base_xpos",
+"Antena_Haste_xpos",
+"Antena_Bola_xpos"
+]
+},
+{
+"id": "antena_D",
+"nome": "Antena D",
+"caixa": 3,
+"massa": 0.1,
+"cor": "#9a7cc4",
+"ext": [
+152.7,
+47.8,
+65.9
+],
+"nv": 1038,
+"ov": 3458644,
+"ni": 6474,
+"oi": 3464872,
+"cm3": 60.1,
+"origem": [
+"Antena_Base_xneg",
+"Antena_Haste_xneg",
+"Antena_Bola_xneg"
+]
+},
+{
+"id": "barra_E",
+"nome": "Barra do braço E Ø12,7",
+"caixa": 3,
+"massa": 0.28,
+"cor": "#8a8f96",
+"ext": [
+269.3,
+12.9,
+51.2
+],
+"nv": 370,
+"ov": 3490768,
+"ni": 2220,
+"oi": 3492988,
+"cm3": 35.0,
+"origem": [
+"Barra_braco_E_D12_7"
+]
+},
+{
+"id": "barra_D",
+"nome": "Barra do braço D Ø12,7",
+"caixa": 3,
+"massa": 0.24,
+"cor": "#8a8f96",
+"ext": [
+231.7,
+13.0,
+56.4
+],
+"nv": 405,
+"ov": 3501868,
+"ni": 2430,
+"oi": 3504300,
+"cm3": 30.6,
+"origem": [
+"Barra_braco_D_D12_7"
+]
+},
+{
+"id": "tubo_pE",
+"nome": "Tubo da perna E 1\"",
+"caixa": 3,
+"massa": 0.3,
+"cor": "#8a8f96",
+"ext": [
+382.8,
+25.3,
+25.3
+],
+"nv": 144,
+"ov": 3514020,
+"ni": 864,
+"oi": 3514884,
+"cm3": 84.9,
+"origem": [
+"Tubo_perna_E_1pol"
+]
+},
+{
+"id": "tubo_pD",
+"nome": "Tubo da perna D 1\"",
+"caixa": 3,
+"massa": 0.3,
+"cor": "#8a8f96",
+"ext": [
+377.2,
+25.3,
+25.3
+],
+"nv": 144,
+"ov": 3518340,
+"ni": 864,
+"oi": 3519204,
+"cm3": 83.6,
+"origem": [
+"Tubo_perna_D_1pol"
+]
+}
+]
